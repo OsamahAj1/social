@@ -1,0 +1,127 @@
+{% extends "network/layout.html" %}
+
+{% load static %}
+
+{% block title %} {{ user_data.username }} {% endblock %}
+
+{% block body %}
+
+<h2 class="text-center mb-5 mt-3"> {{ user_data.username }} </h2>
+
+<div class="container text-center">
+    <div class="row">
+        <div class="col" id="followers">
+            Followers {{ followers }}
+        </div>
+        <div class="col">
+            Following {{ following }}
+        </div>
+        {% if request.user.username != user_data.username and request.user.is_authenticated %}
+        <div class="col">
+            <form id="follow-form">
+                {% csrf_token %}
+                {% if check == "false" %}
+                <input data-follow="{{ check }}" data-user="{{ user_data.id }}" type="submit" class="btn btn-primary" value="Follow" id="follow-button">
+                {% else %}
+                <input data-follow="{{ check }}" data-user="{{ user_data.id }}" type="submit" class="btn btn-danger" value="Unfollow" id="follow-button">
+                {% endif %}
+                <p id="error2" class="text-danger"></p>  
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<hr>
+
+<div class="container text-center mt-5 mb-4" id="user-posts-container">
+    <!-- heart from https://favicon.io/emoji-favicons/red-heart -->
+    {% for i in user_posts %}
+        <div class="col-6 border mx-auto p-3 fs-5">
+            <p class="text-start p-2 b"><a class="fw-bold text-reset a" href="{% url 'users' i.poster %}">{{ i.poster }}</a></p>
+        
+            {% if request.user.id == i.poster.id %}
+            {% csrf_token %}
+            <button class="edit-button btn btn-info mb-2 mx-auto" data-post="{{ i.id }}">Edit</button>
+            {% endif %}
+        
+            <p class="text-center text-break">{{ i.text }}</p>
+        
+            <img src="{% static 'network/heart.png' %}" alt="Heart Image" class="me-1"><span>{{ i.likes }}</span>
+        
+            {% if request.user.is_authenticated %}
+            {% if i.id in likes %}
+            {% csrf_token %}
+            <input type="submit" class="like-button btn btn-danger rounded-pill ms-3" data-like="true" data-pl="{{ i.id }}"
+                value="Unlike">
+            {% else %}
+            {% csrf_token %}
+            <input type="submit" class="like-button btn btn-primary rounded-pill ms-3" data-like="false" data-pl="{{ i.id }}"
+                value="Like">
+            {% endif %}
+            {% endif %}
+        
+            <p class="fw-lighter text-start ms-3">{{ i.date }}</p>
+        </div>
+    {% endfor %}
+</div>
+
+
+<!--Pages-->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+
+        <!--Previous button-->
+        {% if user_posts.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1" aria-label="Next">
+                <span aria-hidden="true">&laquo; &laquo;</span>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ user_posts.previous_page_number }}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">&laquo; &laquo;</span>
+        </li>
+        <li class="page-item disabled">
+            <span class="page-link">&laquo;</span>
+        </li>
+        {% endif %}
+
+        <!--page numbers-->
+        {% for num in user_posts.paginator.page_range %}
+        {% if num == user_posts.number %}
+        <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+        {% else %}
+        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+        {% endif %}
+        {% endfor %}
+
+        <!--Next button-->
+        {% if user_posts.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ user_posts.next_page_number }}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ user_posts.paginator.num_pages }}" aria-label="Next">
+                <span aria-hidden="true">&raquo; &raquo;</span>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">&raquo; &raquo;</span>
+        </li>
+        <li class="page-item disabled">
+            <span class="page-link">&raquo;</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+
+{% endblock %}

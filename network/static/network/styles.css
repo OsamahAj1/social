@@ -1,0 +1,13 @@
+img {
+    width: 20px;
+    height: auto;
+}
+
+.a {
+    text-decoration: None;
+}
+
+.a:hover {
+    text-decoration: underline;
+}
+

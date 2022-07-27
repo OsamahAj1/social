@@ -1,0 +1,12 @@
+{% extends "network/layout.html" %}
+
+{% block title %}
+ERROR
+{% endblock %}
+
+{% block body %}
+
+<h1 style="color: red;">{{ error }}</h1>
+<a href="{% url 'index' %}" style="font-size: 20px;">Go Back To Home Page</a>
+
+{% endblock %}
